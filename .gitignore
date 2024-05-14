@@ -1,0 +1,8 @@
+# Ignore GitHub
+.github/
+
+# Ignore VSC
+.vscode/
+
+# Ignore config.ini
+config.ini
