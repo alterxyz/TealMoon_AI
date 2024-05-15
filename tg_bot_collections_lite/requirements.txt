@@ -1,0 +1,10 @@
+# This is a draft of the requirements.txt file
+
+openai==1.26.0
+pytelegrambotapi==4.17.0
+telegramify-markdown==0.1.2
+groq==0.5.0
+requests==2.31.0
+urlextract==1.9.0
+urllib3==2.2.1
+dify-client # Unchecked, but works well by `pip install dify-client`
