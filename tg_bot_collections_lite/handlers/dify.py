@@ -69,13 +69,17 @@ def dify_handler(message: Message, bot: TeleBot) -> None:
     dify_reply_text = ""
     try:
         r = client.create_chat_message(
-            inputs={}, query=m, user=str(message.from_user.id), response_mode="blocking", conversation_id=c
+            inputs={},
+            query=m,
+            user=str(message.from_user.id),
+            response_mode="blocking",
+            conversation_id=c,
         )
         j = r.json()
 
         content = j.get("answer", None)
         # get c by j.get then save c to dify_player_c
-        dify_player_c[str(message.from_user.id)] = j.get('conversation_id', None)
+        dify_player_c[str(message.from_user.id)] = j.get("conversation_id", None)
         if not content:
             dify_reply_text = f"{who} did not answer."
             player_message.pop()
@@ -102,7 +106,5 @@ def dify_handler(message: Message, bot: TeleBot) -> None:
 if DIFY_API_KEY:
 
     def register(bot: TeleBot) -> None:
-        bot.register_message_handler(dify_handler, commands=[
-                                     "dify"], pass_bot=True)
-        bot.register_message_handler(
-            dify_handler, regexp="^dify:", pass_bot=True)
+        bot.register_message_handler(dify_handler, commands=["dify"], pass_bot=True)
+        bot.register_message_handler(dify_handler, regexp="^dify:", pass_bot=True)
