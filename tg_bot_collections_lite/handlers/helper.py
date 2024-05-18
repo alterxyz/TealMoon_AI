@@ -107,5 +107,5 @@ def dify_handler(message: Message, bot: TeleBot) -> None:
 if DIFY_API_KEY:
 
     def register(bot: TeleBot) -> None:
-        bot.register_message_handler(dify_handler, commands=None, pass_bot=True)
-        bot.register_message_handler(dify_handler, regexp=None, pass_bot=True)
+        bot.register_message_handler(dify_handler, commands=["helper"], pass_bot=True)
+        bot.register_message_handler(dify_handler, regexp="^helper:", pass_bot=True)
