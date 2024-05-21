@@ -1,3 +1,6 @@
+# Dify chatbot through cli
+# pip install dify-client
+
 from dify_client import ChatClient
 
 def main():
