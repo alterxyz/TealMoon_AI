@@ -9,7 +9,7 @@ from telegram.ext import (
     filters,
 )
 import dify_tm_1 as DifyTM
-from dify_client import ChatClient
+from dify_client import ChatClient # pip install python-telegram-bot --upgrade
 
 # Initialize Chat Client
 api = "app-xxxxxxxxxxxxxxxxxxxxxxxx"
