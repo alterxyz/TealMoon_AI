@@ -14,10 +14,10 @@ from dify_client import ChatClient # pip install python-telegram-bot --upgrade
 
 # Initialize Chat Client
 api = "app-xxxxxxxxxxxxxxxxxxxxxxxx"
-base_url = "https://api.dify.ai/v1"
+base_url = "https://api.dify.ai/v1" # **Change it to yours if you self-host**
 chat_client = ChatClient(api)
 chat_client.base_url = base_url
-tg_token = "7110895550:xxxxxxxxxxxxxxxxx"
+tg_token = "1111111111:xxxxxxxxxxxxxxxxx"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
