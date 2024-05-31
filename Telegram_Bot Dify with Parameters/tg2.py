@@ -11,12 +11,13 @@ from telegram.ext import (
 import dify_tm_1 as DifyTM
 from dify_client import ChatClient # pip install python-telegram-bot --upgrade
 
+
 # Initialize Chat Client
 api = "app-xxxxxxxxxxxxxxxxxxxxxxxx"
 base_url = "https://api.dify.ai/v1"
 chat_client = ChatClient(api)
 chat_client.base_url = base_url
-tg_token = "7110895550:AAEUo0aFA1nGkfDw0QgHD8GoiEvFtyPi_yc"
+tg_token = "7110895550:xxxxxxxxxxxxxxxxx"
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -26,9 +27,8 @@ logger = logging.getLogger(__name__)
 # Define the states
 PARAM, CHAT = range(2)
 
+
 # Function to start setting parameters
-
-
 async def start_set(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     parameters = DifyTM.init_parameters()  # Retrieve the parameters dynamically
     context.user_data["parameters"] = parameters
@@ -39,14 +39,14 @@ async def start_set(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 # Function to ask for the next parameter
-
-
 async def ask_next_param(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     index = context.user_data["index"]
     parameters = context.user_data["parameters"]
 
     if index >= len(parameters):
-        await update.message.reply_text("All parameters have been set.")
+        await update.message.reply_text(
+            "All parameters have been set,\npress /view_set to view your parameters\nor press /chat to start."
+        )
         logger.info("Set Parameters: %s", context.user_data["setted_parameters"])
         context.user_data["mode"] = "idle"  # Transition to idle mode
         return ConversationHandler.END
@@ -57,13 +57,18 @@ async def ask_next_param(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     prompt = details["label"]
     if input_type == "select":
-        options_str = ", ".join(details["options"])
-        prompt += f" ({options_str})"
+        options_str = "\n".join(details["options"])
+        prompt += f"\n\nOptions:\n\n{options_str}"
 
     if "required" in details and not details["required"]:
         prompt += "\n(Optional field, press /None to skip.)"
 
-    await update.message.reply_text(prompt, reply_markup=ReplyKeyboardRemove())
+    prompt_message = await update.message.reply_text(
+        prompt, reply_markup=ReplyKeyboardRemove()
+    )
+    context.user_data["prompt_message_id"] = (
+        prompt_message.message_id
+    )  # Store prompt message ID
     return PARAM
 
 
@@ -95,6 +100,13 @@ async def set_param(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
                 await update.message.reply_text("Invalid number, please try again.")
                 return PARAM
 
+    # Delete prompt and user input messages
+    await context.bot.delete_message(
+        chat_id=update.message.chat_id,
+        message_id=context.user_data["prompt_message_id"],
+    )
+    await update.message.delete()
+
     context.user_data["index"] += 1
     return await ask_next_param(update, context)
 
@@ -109,19 +121,29 @@ async def none_param(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data["setted_parameters"][details["variable"]] = ""
     context.user_data["index"] += 1
 
+    # Delete prompt and user input messages
+    await context.bot.delete_message(
+        chat_id=update.message.chat_id,
+        message_id=context.user_data["prompt_message_id"],
+    )
+    await update.message.delete()
+
     return await ask_next_param(update, context)
 
 
 # Function to view set parameters
+import json
+
+
 async def view_set(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     setted_parameters = context.user_data.get("setted_parameters", {})
     if not setted_parameters:
         await update.message.reply_text("No parameters have been set yet.")
     else:
-        params_view = "\n".join(
-            [f"{key}: {value}" for key, value in setted_parameters.items()]
+        params_view = json.dumps(setted_parameters, indent=4)
+        await update.message.reply_text(
+            f"Current parameters:\n```json\n{params_view}```", parse_mode="MarkdownV2"
         )
-        await update.message.reply_text(f"Current parameters:\n{params_view}")
     return PARAM if context.user_data["mode"] == "set" else ConversationHandler.END
 
 
@@ -180,6 +202,26 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
+async def clear_chat(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.user_data["conversation_id"] = None
+    await update.message.reply_text(
+        "Chat conversation has been cleared. You can start a new conversation."
+    )
+
+
+async def new(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.user_data["conversation_id"] = None
+    await update.message.reply_text("New conversation started.")
+
+
+async def clear(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.user_data["setted_parameters"] = {}
+    context.user_data["conversation_id"] = None
+    await update.message.reply_text(
+        "All parameters and chat conversation have been cleared.\n please use /set to restart."
+    )
+
+
 # Main function
 def main() -> None:
     application = Application.builder().token(tg_token).build()
@@ -205,6 +247,13 @@ def main() -> None:
     application.add_handler(
         CommandHandler("view_set", view_set)
     )  # Ensure it can be used globally
+    application.add_handler(
+        CommandHandler("clear_chat", clear_chat)
+    )  # Clear chat conversation
+    application.add_handler(CommandHandler("new", new))  # Start new conversation
+    application.add_handler(
+        CommandHandler("clear", clear)
+    )  # Clear all parameters and conversation
 
     # To handle messages when not in conversation
     application.add_handler(
