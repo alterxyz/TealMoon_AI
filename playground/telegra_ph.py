@@ -9,14 +9,10 @@ For getting the telegra.ph token with account in Telegram bot:
 Do not share the token with others, it's like a password.
 """
 
-from bs4 import BeautifulSoup
-import markdown
 import requests
 import json
 import markdown  # pip install Markdown
 from bs4 import BeautifulSoup  # pip install beautifulsoup4
-
-access_token = ""
 
 
 class TelegraphAPI:
@@ -172,8 +168,19 @@ class TelegraphAPI:
         content = md_to_dom(markdown_text)
         return self.create_page(title, content, author_name, author_url, return_content)
 
-
-ph = TelegraphAPI(access_token)
+    def edit_page_md(
+        self,
+        path,
+        title,
+        markdown_text,
+        author_name=None,
+        author_url=None,
+        return_content=False,
+    ):
+        content = md_to_dom(markdown_text)
+        return self.edit_page(
+            path, title, content, author_name, author_url, return_content
+        )
 
 
 def md_to_dom(markdown_text):
@@ -250,24 +257,3 @@ def md_to_dom(markdown_text):
             new_dom.append(parse_element(element))
 
     return new_dom
-
-
-path = "Sample-Page-12-15"
-print(json.dumps(ph.get_page(path), indent=4))
-
-# Example usage:
-
-# markdown_text = """
-# # 大标题
-# ## 小标题
-# ### Heading 3
-# #### Heading 4
-# ##### Heading 5
-# ###### Heading 6
-# A paragraph of text.
-# """
-# content = md_to_dom(markdown_text)
-# response = ph.edit_page("测试文章-06-19", "测试文章-06-19", content)
-# print(response)
-# path = "测试文章-06-19"
-# print(json.dumps(get_page(path), indent=4))
