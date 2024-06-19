@@ -13,7 +13,6 @@ from bs4 import BeautifulSoup
 import markdown
 import requests
 import json
-import re
 import markdown  # pip install Markdown
 from bs4 import BeautifulSoup  # pip install beautifulsoup4
 
