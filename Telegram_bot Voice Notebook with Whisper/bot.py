@@ -206,7 +206,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 def main() -> None:
-    tg_token = "" # Your Telegram Bot Token
+    tg_token = ""  # Your Telegram Bot Token
     application = Application.builder().token(tg_token).build()
 
     application.add_handler(CommandHandler("start", start))

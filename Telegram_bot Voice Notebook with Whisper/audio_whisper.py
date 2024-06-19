@@ -4,6 +4,7 @@ import os
 import whisper
 import whisper.utils
 
+
 def transcribe_audio(file_path, model_size="medium", device="cuda", language="zh"):
     """
     使用 Whisper 模型转录音频文件，并将结果保存为 .txt 和 .srt 文件。
@@ -50,7 +51,10 @@ def transcribe_audio(file_path, model_size="medium", device="cuda", language="zh
         except Exception as e:
             print(f"Error: 无法保存 .{ext} 文件：{e}")
 
-    tg_file_path = os.path.join(os.path.dirname(file_path), "tg_[" + os.path.basename(file_path).split(".")[0] + "]")
+    tg_file_path = os.path.join(
+        os.path.dirname(file_path),
+        "tg_[" + os.path.basename(file_path).split(".")[0] + "]",
+    )
     txt_file_path = tg_file_path + ".txt"
     try:
         with open(txt_file_path, "w", encoding="utf-8") as txt_file:

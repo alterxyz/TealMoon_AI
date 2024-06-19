@@ -6,7 +6,7 @@ import os
 
 
 # Set your OpenAI API key and base URL
-CHATGPT_API_KEY = "" # YOUR_OPENAI_API_KEY
+CHATGPT_API_KEY = ""  # YOUR_OPENAI_API_KEY
 CHATGPT_BASE_URL = "https://api.openai.com/v1"
 client = openai.OpenAI(api_key=CHATGPT_API_KEY, base_url=CHATGPT_BASE_URL, timeout=600)
 
