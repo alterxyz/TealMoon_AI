@@ -4,6 +4,7 @@ import time
 from openai import OpenAI
 from telebot import TeleBot
 from telebot.types import Message
+from expiringdict import ExpiringDict
 
 from . import *
 
@@ -23,8 +24,8 @@ client = OpenAI(api_key=CHATGPT_API_KEY, base_url=CHATGPT_BASE_URL, timeout=20)
 
 
 # Global history cache
-chatgpt_player_dict = {}
-chatgpt_pro_player_dict = {}
+chatgpt_player_dict = ExpiringDict(max_len=1000, max_age_seconds=300)
+chatgpt_pro_player_dict = ExpiringDict(max_len=1000, max_age_seconds=300)
 
 
 def chatgpt_handler(message: Message, bot: TeleBot) -> None:
@@ -117,14 +118,15 @@ def chatgpt_pro_handler(message: Message, bot: TeleBot) -> None:
     reply_id = bot_reply_first(message, who, bot)
 
     player_message.append({"role": "user", "content": m})
-    # keep the last 5, every has two ask and answer.
-    if len(player_message) > 10:
+    # keep the last 3, every has two ask and answer.
+    # save me some money
+    if len(player_message) > 6:
         player_message = player_message[2:]
 
     try:
         r = client.chat.completions.create(
             messages=player_message,
-            max_tokens=2048,
+            max_tokens=4096,
             model=CHATGPT_PRO_MODEL,
             stream=True,
         )
@@ -134,15 +136,14 @@ def chatgpt_pro_handler(message: Message, bot: TeleBot) -> None:
             if chunk.choices[0].delta.content is None:
                 break
             s += chunk.choices[0].delta.content
-            if time.time() - start > 2.0:
+            if time.time() - start > 1.2:
                 start = time.time()
-                bot_reply_markdown(reply_id, who, s, bot, split_text=False)
-
-        if not bot_reply_markdown(reply_id, who, s, bot):
-            # maybe not complete
-            # maybe the same message
-            player_message.clear()
-            return
+                bot_reply_markdown(reply_id, who, s, bot, split_text=True)
+        # maybe not complete
+        try:
+            bot_reply_markdown(reply_id, who, s, bot, split_text=True)
+        except:
+            pass
 
         player_message.append(
             {
@@ -219,6 +220,7 @@ if CHATGPT_API_KEY:
         bot.register_message_handler(
             chatgpt_photo_handler,
             content_types=["photo"],
-            func=lambda m: m.caption and m.caption.startswith(("gpt:", "/gpt")),
+            func=lambda m: m.caption
+            and m.caption.startswith(("gpt:", "/gpt", "gpt_pro:", "/gpt_pro")),
             pass_bot=True,
         )
