@@ -8,16 +8,19 @@ co = cohere.Client(
 
 response = co.chat(
     chat_history=[
-        {"role": "USER", "message": "This is a test message. Make a simple online search for me."},
+        {
+            "role": "USER",
+            "message": "This is a test message. Make a simple online search for me.",
+        },
         {
             "role": "CHATBOT",
             "message": "Of course! I'd be happy to help you with a simple online search. Please provide the search query or topic you would like me to search for, and I will find relevant information from reliable online sources and summarize it for you.",
         },
     ],
     message="This is a test message, just reply me hello world.",
-    model='command-r-plus',
+    model="command-r-plus",
     temperature=0.3,
-    connectors=[{"id": "web-search"}]
+    connectors=[{"id": "web-search"}],
 )
 
 print(response.text)
@@ -25,7 +28,7 @@ print(response.text)
 for doc in response.documents:
     print(f"\n[{doc['title']}]({doc['url']})")
 
-'''
+"""
 Example:
 
 Today in Toronto, the weather is expected to be very warm and humid, with a high of 87°F (30°C) and a low of 72°F (22°C). There is a risk of thunderstorms in the afternoon and a 30% chance of showers in the evening. The Air Quality Health Index is expected to be in the high-risk category, with high levels of air pollution. It is recommended that you stay hydrated and reduce your time spent outside if you experience any negative symptoms due to the weather conditions.
@@ -41,4 +44,4 @@ Today in Toronto, the weather is expected to be very warm and humid, with a high
 ---
 
 Hello World!
-'''
+"""

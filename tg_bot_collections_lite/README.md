@@ -2,6 +2,14 @@
 
 tg_bot_collection <https://github.com/yihong0618/tg_bot_collections>
 
+## Usage
+
+```shell
+sudo python3 env_setup.py # Optional
+source /etc/environment
+python3 tg.py ${BOT_TOKEN}
+```
+
 ## For Environment keys
 
 If you need to check the env setup, `cd` to this directory and run `env_setup.py` manually.

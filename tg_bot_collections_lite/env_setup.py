@@ -12,6 +12,8 @@ def set_environment_variables(keys):
     """设置环境变量。"""
     for key, value in keys.items():
         os.environ[key] = value
+        # 直接修改系统的环境变量
+        os.system(f'echo "export {key}={value}" >> /etc/environment')
 
 
 def get_environment_variables(json_keys=None):
@@ -33,12 +35,15 @@ def check_env(json_file_path="token_key.json"):
         env_value = env_vars.get(key)
         if env_value is None:
             print(f"{key} missing !")
-            all_passed = False
         elif env_value == json_value:
             print(f"{key} pass")
         else:
             print(f"{key} different ! (JSON: {json_value}, Env: {env_value})")
             all_passed = False
+            print(
+                "Different environment variables detected. Please check the JSON file and environment variables.\nProcess terminated."
+            )
+            return all_passed
 
     return all_passed
 
@@ -47,7 +52,7 @@ def write_and_check_env(json_file_path="token_key.json"):
     """从 JSON 文件加载密钥，设置环境变量，然后检查。"""
     json_keys = load_keys_from_json(json_file_path)
     set_environment_variables(json_keys)
-    print("Environment variables set from JSON file.")
+    print("Environment variables set from JSON file and written to /etc/environment.")
     return check_env(json_file_path)
 
 
@@ -72,6 +77,8 @@ def init_json():
 def try_env():
     print("Initial environment check:")
     initial_check = check_env()
+    if not initial_check:
+        return
     print(f"\nInitial check result: {initial_check}")
 
     print("\nSetting and checking environment variables:")
