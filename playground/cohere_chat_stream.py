@@ -18,10 +18,15 @@ class CustomEncoder(json.JSONEncoder):
         else:
             return str(obj)
 
-
+current_time = datetime.now()
+print(current_time.strftime('%Y-%m-%d %H:%M:%S'))
+preamble = (
+    f"You are Command R Plus, a large language model trained to have polite, helpful, inclusive conversations with people. People are looking for information that may need you to search online. Make an accurate and fast response. You must reply with user's original language."
+    f"The current time in Toronto is {current_time}."
+)
 stream = co.chat_stream(
-    model="command-r-plus",
-    message="How's weather today in Toronto?",
+    model="command-r",
+    message="现在多伦多是几点? 天气怎么样?",
     temperature=0.8,
     chat_history=[
         {
@@ -35,6 +40,7 @@ stream = co.chat_stream(
     ],
     prompt_truncation="AUTO",
     connectors=[{"id": "web-search"}],
+    preamble=preamble,
 )
 
 for event in stream:
